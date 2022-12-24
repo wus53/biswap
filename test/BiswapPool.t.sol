@@ -12,7 +12,8 @@ contract BiswapPoolTest is Test, TestUtils {
     ERC20Mintable token1;
     BiswapPool pool;
 
-    bool shouldTransferInCallback = true;
+    bool transferInMintCallback = true;
+    bool transferInSwapCallback = true;
 
     struct TestCaseParams {
         uint256 wethBalance;
@@ -22,7 +23,8 @@ contract BiswapPoolTest is Test, TestUtils {
         int24 upperTick;
         uint128 liquidity;
         uint160 currentSqrtP;
-        bool shouldTransferInCallback;
+        bool transferInMintCallback;
+        bool transferInSwapCallback;
         bool mintLiquidity;
     }
 
@@ -40,7 +42,8 @@ contract BiswapPoolTest is Test, TestUtils {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: true,
+            transferInMintCallback: true,
+            transferInSwapCallback: false,
             mintLiquidity: true
         });
 
@@ -88,18 +91,24 @@ contract BiswapPoolTest is Test, TestUtils {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: true,
+            transferInMintCallback: false,
+            transferInSwapCallback: true,
             mintLiquidity: true
         });
 
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
         int256 userBalanceBefore = int256(token0.balanceOf(address(this)));
 
-        token1.mint(address(this), 42 ether);
+        uint256 swapAmount = 42 ether;
+        token1.mint(address(this), swapAmount);
+        token1.approve(address(this), swapAmount);
+
+        BiswapPool.CallbackData memory extra =
+            BiswapPool.CallbackData({token0: address(token0), token1: address(token1), payer: address(this)});
 
         // The function returns token amounts used in the swap, and we can
         // check them right away:
-        (int256 amount0Delta, int256 amount1Delta) = pool.swap(address(this));
+        (int256 amount0Delta, int256 amount1Delta) = pool.swap(address(this), abi.encode(extra));
 
         assertEq(amount0Delta, -0.008396714242162444 ether, "invalid ETH out");
         assertEq(amount1Delta, 42 ether, "invalid USDC in");
@@ -134,14 +143,15 @@ contract BiswapPoolTest is Test, TestUtils {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: false,
+            transferInMintCallback: false,
+            transferInSwapCallback: false,
             mintLiquidity: true
         });
 
         setupTestCase(params);
 
         vm.expectRevert(encodeError("InsufficientInputAmount()"));
-        pool.swap(address(this));
+        pool.swap(address(this), "");
     }
 
     /////////////////////////////////////////
@@ -150,27 +160,28 @@ contract BiswapPoolTest is Test, TestUtils {
     //                                     //
     /////////////////////////////////////////
 
-    bool success;
-
     // It’s the test contract that will provide liquidity and will call the mint
     // function on the pool, there’re no users. The test contract will act as a user,
     // thus it can implement the mint callback function.
-    function biswapMintCallback(uint256 amount0, uint256 amount1) public {
-        if (shouldTransferInCallback) {
+    function biswapMintCallback(uint256 amount0, uint256 amount1, bytes calldata data) public {
+        if (transferInMintCallback) {
+            BiswapPool.CallbackData memory extra = abi.decode(data, (BiswapPool.CallbackData));
             // msg.sender here is the pool contract
-            token0.transfer(msg.sender, amount0);
-            token1.transfer(msg.sender, amount1);
+            IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
+            IERC20(extra.token1).transferFrom(extra.payer, msg.sender, amount1);
         }
     }
 
-    function biswapSwapCallback(int256 amount0, int256 amount1) public {
-        if (shouldTransferInCallback) {
+    function biswapSwapCallback(int256 amount0, int256 amount1, bytes calldata data) public {
+        if (transferInSwapCallback) {
+            BiswapPool.CallbackData memory extra = abi.decode(data, (BiswapPool.CallbackData));
+
             if (amount0 > 0) {
-                token0.transfer(msg.sender, uint256(amount0));
+                IERC20(extra.token0).transferFrom(extra.payer, msg.sender, uint256(amount0));
             }
 
             if (amount1 > 0) {
-                token1.transfer(msg.sender, uint256(amount1));
+                IERC20(extra.token1).transferFrom(extra.payer, msg.sender, uint256(amount1));
             }
         }
     }
@@ -196,10 +207,17 @@ contract BiswapPoolTest is Test, TestUtils {
         );
 
         if (params.mintLiquidity) {
+            token0.approve(address(this), params.wethBalance);
+            token1.approve(address(this), params.usdcBalance);
+
+            BiswapPool.CallbackData memory extra =
+                BiswapPool.CallbackData({token0: address(token0), token1: address(token1), payer: address(this)});
+
             (poolBalance0, poolBalance1) =
-                pool.mint(address(this), params.lowerTick, params.upperTick, params.liquidity);
+                pool.mint(address(this), params.lowerTick, params.upperTick, params.liquidity, abi.encode(extra));
         }
 
-        shouldTransferInCallback = params.shouldTransferInCallback;
+        transferInMintCallback = params.transferInMintCallback;
+        transferInSwapCallback = params.transferInSwapCallback;
     }
 }

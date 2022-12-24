@@ -2,5 +2,5 @@
 pragma solidity ^0.8.14;
 
 interface IBiswapMintCallback {
-    function biswapMintCallback(uint256 amount0, uint256 amount1) external;
+    function biswapMintCallback(uint256 amount0, uint256 amount1, bytes calldata data) external;
 }

@@ -63,6 +63,12 @@ contract BiswapPool {
         int24 tick;
     }
 
+    struct CallbackData {
+        address token0;
+        address token1;
+        address payer;
+    }
+
     Slot0 public slot0;
 
     // Amount of liquidity, L
@@ -81,7 +87,7 @@ contract BiswapPool {
     }
 
     // Mint function
-    function mint(address owner, int24 lowerTick, int24 upperTick, uint128 amount)
+    function mint(address owner, int24 lowerTick, int24 upperTick, uint128 amount, bytes calldata data)
         external
         returns (uint256 amount0, uint256 amount1)
     {
@@ -109,7 +115,7 @@ contract BiswapPool {
 
         // msg.sender here is the test contract, which implements
         // the function biswapMintCallback
-        IBiswapMintCallback(msg.sender).biswapMintCallback(amount0, amount1);
+        IBiswapMintCallback(msg.sender).biswapMintCallback(amount0, amount1, data);
 
         // console.log(balance0());
 
@@ -128,7 +134,7 @@ contract BiswapPool {
 
     // Swap function
     // use type int256 since some amount could be negative
-    function swap(address recipient) public returns (int256 amount0, int256 amount1) {
+    function swap(address recipient, bytes calldata data) public returns (int256 amount0, int256 amount1) {
         int24 nextTick = 85184;
         uint160 nextPrice = 5604469350942327889444743441197;
 
@@ -139,7 +145,7 @@ contract BiswapPool {
 
         IERC20(token0).transfer(recipient, uint256(-amount0));
         uint256 balance1Before = balance1();
-        IBiswapSwapCallback(msg.sender).biswapSwapCallback(amount0, amount1);
+        IBiswapSwapCallback(msg.sender).biswapSwapCallback(amount0, amount1, data);
         if (balance1Before + uint256(amount1) > balance1()) {
             revert InsufficientInputAmount();
         }
