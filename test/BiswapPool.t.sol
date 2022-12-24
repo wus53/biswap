@@ -3,10 +3,11 @@ pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
+import "./TestUtils.sol";
 import "../src/BiswapPool.sol";
 import "./ERC20Mintable.sol";
 
-contract BiswapPoolTest is Test {
+contract BiswapPoolTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
     BiswapPool pool;
@@ -78,6 +79,71 @@ contract BiswapPoolTest is Test {
         assertEq(pool.liquidity(), 1517882343751509868544, "invalid current liquidity");
     }
 
+    function testSwapBuyEth() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            shouldTransferInCallback: true,
+            mintLiquidity: true
+        });
+
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+        int256 userBalanceBefore = int256(token0.balanceOf(address(this)));
+
+        token1.mint(address(this), 42 ether);
+
+        // The function returns token amounts used in the swap, and we can
+        // check them right away:
+        (int256 amount0Delta, int256 amount1Delta) = pool.swap(address(this));
+
+        assertEq(amount0Delta, -0.008396714242162444 ether, "invalid ETH out");
+        assertEq(amount1Delta, 42 ether, "invalid USDC in");
+
+        // Then, we need to ensure that tokens were actually transferred from the caller:
+        assertEq(token0.balanceOf(address(this)), uint256(userBalanceBefore - amount0Delta), "invalid user ETH balance");
+        assertEq(token1.balanceOf(address(this)), 0, "invalid user USDC balance");
+
+        // And sent to the pool contract:
+        assertEq(
+            token0.balanceOf(address(pool)), uint256(int256(poolBalance0) + amount0Delta), "invalid pool ETH balance"
+        );
+        assertEq(
+            token1.balanceOf(address(pool)), uint256(int256(poolBalance1) + amount1Delta), "invalid pool USDC balance"
+        );
+
+        // Finally, we’re checking that the pool state was updated correctly:
+        // Notice that swapping doesn’t change the current liquidity–in a
+        // later chapter, we’ll see when it does change it.
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(sqrtPriceX96, 5604469350942327889444743441197, "invalid current sqrtP");
+        assertEq(tick, 85184, "invalid current tick");
+        assertEq(pool.liquidity(), 1517882343751509868544, "invalid current liquidity");
+    }
+
+    function testSwapInsufficientInputAmount() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            shouldTransferInCallback: false,
+            mintLiquidity: true
+        });
+
+        setupTestCase(params);
+
+        vm.expectRevert(encodeError("InsufficientInputAmount()"));
+        pool.swap(address(this));
+    }
+
     /////////////////////////////////////////
     //                                     //
     //              CALLBACK               //
@@ -94,6 +160,18 @@ contract BiswapPoolTest is Test {
             // msg.sender here is the pool contract
             token0.transfer(msg.sender, amount0);
             token1.transfer(msg.sender, amount1);
+        }
+    }
+
+    function biswapSwapCallback(int256 amount0, int256 amount1) public {
+        if (shouldTransferInCallback) {
+            if (amount0 > 0) {
+                token0.transfer(msg.sender, uint256(amount0));
+            }
+
+            if (amount1 > 0) {
+                token1.transfer(msg.sender, uint256(amount1));
+            }
         }
     }
 
