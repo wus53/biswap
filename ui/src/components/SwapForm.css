@@ -1,0 +1,41 @@
+.SwapContainer {
+  width: 35vw;
+  @apply py-4 px-6 bg-fuchsia-200;
+}
+
+.SwapContainer header {
+  @apply flex flex-row justify-between;
+}
+
+.SwapContainer header h1 {
+  @apply font-bold mb-4 text-gray-800;
+}
+
+.SwapContainer header button {
+  @apply inline h-fit;
+}
+
+.SwapForm {
+  @apply flex flex-col;
+}
+
+.SwapForm fieldset {
+  @apply flex flex-row;
+}
+
+.SwapForm fieldset select {
+  @apply bg-pink-50 mb-2;
+}
+
+.SwapForm input {
+  @apply mb-2 px-4 py-2 bg-pink-50  text-xl w-full;
+}
+
+.SwapForm button {
+  @apply w-full py-4 bg-violet-300  text-xl mt-3 font-bold;
+  letter-spacing: 2px;
+}
+
+.SwapForm button:hover {
+  @apply bg-violet-400;
+}
