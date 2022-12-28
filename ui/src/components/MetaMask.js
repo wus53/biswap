@@ -20,7 +20,10 @@ const shortAddress = (address) =>
 const statusConnected = (account, chain) => {
   return (
     <span>
-      Connected to {chainIdToChain(chain)} as {shortAddress(account)}
+      Connected to {chainIdToChain(chain)} as{" "}
+      <button className="inline bg-violet-100 pixelated-border px-2 pt-1 ml-1">
+        {shortAddress(account)}
+      </button>
     </span>
   );
 };
@@ -29,7 +32,10 @@ const statusNotConnected = (connect) => {
   return (
     <span>
       MetaMask is not connected.{" "}
-      <button className="bg-violet-200 rounded-xl px-2" onClick={connect}>
+      <button
+        className="bg-violet-400 pixelated-border px-2 pt-1 ml-1"
+        onClick={connect}
+      >
         Connect
       </button>
     </span>
@@ -56,7 +62,7 @@ const MetaMask = () => {
   const context = useContext(MetaMaskContext);
 
   return (
-    <section className="bg-white rounded-xl shadow-lg py-4 px-6 mt-6">
+    <section className="bg-fuchsia-200 shadow-lg py-4 px-6 mt-6 pixelated-border">
       {renderStatus(
         context.status,
         context.account,

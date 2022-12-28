@@ -2,11 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: Minecraft;
+  src: url(Minecraft.ttf);
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: Minecraft, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  letter-spacing: 1px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -24,5 +30,10 @@ body,
 }
 
 #root {
-  @apply bg-gradient-to-b from-violet-400 via-pink-200 to-fuchsia-200;
+  @apply bg-gradient-to-b from-violet-600 to-fuchsia-400;
+}
+
+.pixelated-border {
+  box-shadow: -4px 0 0 0 #36048c, 4px 0 0 0 #36048c, 0 -4px 0 0 #36048c,
+    0 4px 0 0 #36048c;
 }
