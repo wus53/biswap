@@ -90,3 +90,28 @@ print("ETH out: {}".format(amount_out / eth))
 # New tick: 85184
 # USDC in: 42.0
 # ETH out: 0.008396714242162444
+
+
+# Swap ETH for USDC
+amount_in = 0.01337 * eth
+
+print("\nSelling {} ETH".format(amount_in/eth))
+
+price_next = int((liq * q96 * sqrtp_cur) // (liq * q96 + amount_in * sqrtp_cur))
+
+print("New price:", (price_next / q96) ** 2)
+print("New sqrtP", price_next)
+print("New tick:", price_to_tick((price_next / q96) ** 2))
+
+amount_in = calc_amount0(liq, price_next, sqrtp_cur)
+amount_out = calc_amount1(liq, price_next, sqrtp_cur)
+
+print("ETH in:", amount_in / eth)
+print("USDC out:", amount_out / eth)
+
+# Selling 0.01337 ETH
+# New price: 4993.777388290041
+# New sqrtP 5598789932670289186088059666432
+# New tick: 85163
+# ETH in: 0.013369999999998142
+# USDC out: 66.80838889019013
