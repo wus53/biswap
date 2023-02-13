@@ -97,6 +97,13 @@ contract BiswapPool {
         // check the liquidity is not zero (amount is liquidity amount L)
         if (amount == 0) revert ZeroLiquidity();
 
+        bool flippedLower = ticks.update(lowerTick, amount);
+        bool flippedUpper = ticks.update(upperTick, amount);
+
+        if (flippedLower) {
+            tickBitmap.flipTick(lowerTick, 1);
+        }
+
         ticks.update(lowerTick, amount);
         ticks.update(upperTick, amount);
 
