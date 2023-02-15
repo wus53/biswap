@@ -36,3 +36,6 @@ In this milestone, I built a pool contract that can receive liquidity from users
 
 - Installing [prb-math](https://github.com/paulrberg/prb-math) library advanced fixed-point math algorithms.
 - In the folder "/lib/prb-math", run the command `git checkout e33a042e4d1673fe9b333830b75c4765ccf3f5f2` to use the previous version of PRB Math library.
+
+![16881676504563_ pic](https://user-images.githubusercontent.com/118578313/219220242-f7b3331f-afdb-4850-abb9-b71c835e316c.jpg)
+
