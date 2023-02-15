@@ -62,7 +62,7 @@ const MetaMask = () => {
   const context = useContext(MetaMaskContext);
 
   return (
-    <section className="bg-fuchsia-200 shadow-lg py-4 px-6 mt-6 pixelated-border">
+    <section className="bg-fuchsia-200 shadow-lg text-lg py-4 px-6 mt-16 pixelated-border">
       {renderStatus(
         context.status,
         context.account,

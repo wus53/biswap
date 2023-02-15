@@ -11,14 +11,15 @@ contract BiswapManager {
         int24 upperTick,
         uint128 liquidity,
         bytes calldata data
-    ) public {
-        BiswapPool(poolAddress_).mint(
-            msg.sender,
-            lowerTick,
-            upperTick,
-            liquidity,
-            data
-        );
+    ) public returns (uint256, uint256) {
+        return
+            BiswapPool(poolAddress_).mint(
+                msg.sender,
+                lowerTick,
+                upperTick,
+                liquidity,
+                data
+            );
     }
 
     function swap(
@@ -27,12 +28,13 @@ contract BiswapManager {
         uint256 amountSpecified,
         bytes calldata data
     ) public returns (int256, int256) {
-        BiswapPool(poolAddress_).swap(
-            msg.sender,
-            zeroForOne,
-            amountSpecified,
-            data
-        );
+        return
+            BiswapPool(poolAddress_).swap(
+                msg.sender,
+                zeroForOne,
+                amountSpecified,
+                data
+            );
     }
 
     function biswapMintCallback(
