@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { useContext, useEffect, useState, useReducer } from "react";
 import { MetaMaskContext } from "../contexts/MetaMask";
+import config from "../config.js";
 
 const PoolABI = require("../abi/Pool.json");
 
@@ -16,8 +17,8 @@ const getEvents = (pool) => {
 const subscribeToEvents = (pool, callback) => {
   // pool.on("Mint", (sender, owner, tickLower, tickUpper, amount, amount0, amount1, event) => callback(event));
   // pool.on("Swap", (sender, recipient, amount0, amount1, sqrtPriceX96, liquidity, tick, event) => callback(event));
-  pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
-  pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
+  pool.on("Mint", (a, b, c, d, e, f, g, event) => callback(event));
+  pool.on("Swap", (a, b, c, d, e, f, g, event) => callback(event));
 };
 
 const renderAmount = (amount) => {
@@ -91,8 +92,7 @@ const eventsReducer = (state, action) => {
   }
 };
 
-const EventsFeed = (props) => {
-  const config = props.config;
+const EventsFeed = () => {
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useReducer(eventsReducer, []);
   const [pool, setPool] = useState();
@@ -119,7 +119,7 @@ const EventsFeed = (props) => {
 
       setPool(newPool);
     }
-  }, [metamaskContext.status, events, pool, config]);
+  }, [metamaskContext.status, events, pool]);
 
   return (
     <ul className="py-6">{events.filter(isMintOrSwap).map(renderEvent)}</ul>

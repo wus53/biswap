@@ -4,7 +4,7 @@
 }
 
 .SwapContainer header {
-  @apply flex flex-row justify-between;
+  @apply flex flex-row justify-between text-xl mb-4;
 }
 
 .SwapContainer header h1 {
@@ -23,16 +23,16 @@
   @apply flex flex-row;
 }
 
-.SwapForm fieldset select {
-  @apply bg-pink-50 mb-2;
+.SwapForm fieldset label {
+  @apply bg-purple-300 mb-2 font-bold text-lg;
 }
 
 .SwapForm input {
-  @apply mb-2 px-4 py-2 bg-pink-50  text-xl w-full;
+  @apply mb-2 px-4 pt-3 pb-2 bg-pink-50 text-xl w-full;
 }
 
 .SwapForm button {
-  @apply w-full py-4 bg-violet-300  text-xl mt-3 font-bold;
+  @apply w-full py-4 bg-violet-300 text-xl mt-6 font-bold;
   letter-spacing: 2px;
 }
 

@@ -21,7 +21,7 @@ function App() {
     <MetaMaskProvider>
       <div className="App flex flex-col justify-between items-center w-full h-full">
         <MetaMask />
-        <div className="w-1/6">
+        <div className="w-1/5 select-none">
           <img src="logo.png" alt="logo" />
         </div>
         <SwapForm config={config} />

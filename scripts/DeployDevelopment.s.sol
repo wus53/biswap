@@ -6,14 +6,14 @@ import {console} from "forge-std/console.sol";
 import "../test/ERC20Mintable.sol";
 import "../src/BiswapPool.sol";
 import "../src/BiswapManager.sol";
+import "../src/BiswapQuoter.sol";
 
 contract DeployDevelopment is Script {
     function run() public {
-        uint256 wethBalance = 1 ether;
-        uint256 usdcBalance = 5042 ether;
+        uint256 wethBalance = 10 ether;
+        uint256 usdcBalance = 100000 ether;
         uint160 currentSqrtP = 5602277097478614198912276234240;
         int24 currentTick = 85176;
-
 
         // we define the set of steps that will be executed as the deployment
         // transaction (well, each of the steps will be a separate transaction).
@@ -39,9 +39,10 @@ contract DeployDevelopment is Script {
             currentSqrtP,
             currentTick
         );
-        
+
         // Next goes Manager contract deployment:
         BiswapManager manager = new BiswapManager();
+        BiswapQuoter quoter = new BiswapQuoter();
 
         // finally, we can mint some amount of ETH and USDC to our address:
         // msg.sender in Foundry scripts is the address that sends transactions
@@ -56,5 +57,6 @@ contract DeployDevelopment is Script {
         console.log("USDC address", address(token1));
         console.log("Pool address", address(pool));
         console.log("Manager address", address(manager));
+        console.log("Quoter address", address(quoter));
     }
 }
