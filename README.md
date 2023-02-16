@@ -25,6 +25,11 @@ eval "$(direnv hook zsh)"
 forge script scripts/DeployDevelopment.s.sol --broadcast --fork-url $ETH_RPC_URL --private-key $PRIVATE_KEY
 ```
 
+To print the logs in test, you need to run the test script with the -vv flag:
+```shell
+forge test -vv
+```
+
 ## Milestone 1
 
 In this milestone, I built a pool contract that can receive liquidity from users and make swaps within a price range. To keep it as simple as possible, I'll provide liquidity only in one price range and I'll allow to make swaps only in one direction. Also, I'll calculate all the required math manually to get better intuition before starting using mathematical libs in Solidity.
