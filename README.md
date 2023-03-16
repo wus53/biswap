@@ -26,6 +26,7 @@ forge script scripts/DeployDevelopment.s.sol --broadcast --fork-url $ETH_RPC_URL
 ```
 
 To print the logs in test, you need to run the test script with the -vv flag:
+
 ```shell
 forge test -vv
 ```
@@ -44,3 +45,15 @@ In this milestone, I built a pool contract that can receive liquidity from users
 
 ![16881676504563_ pic](https://user-images.githubusercontent.com/118578313/219220242-f7b3331f-afdb-4850-abb9-b71c835e316c.jpg)
 
+## Milestone 3
+
+In this milestone, we’ll:
+
+- update `mint` function to provide liquidity in different price ranges;
+- update `swap` function to cross price ranges when there’s not enough liquidity in the current price range;
+- learn how to calculate liquidity in smart contracts;
+- implement slippage protection in `mint` and `swap` functions;
+- update the UI application to allow to add liquidity at different price ranges;
+- learn a little bit more about fixed-point numbers.
+
+In this milestone, we’ll complete swapping, the core functionality of Biswap!
